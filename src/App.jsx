@@ -103,7 +103,6 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
-  const [showFilters, setShowFilters] = useState(false)
   const [sortOrder, setSortOrder] = useState('default')
 
   const filteredGames = useMemo(() => {
@@ -192,6 +191,7 @@ function App() {
               id: `list-${page}-${index}`,
               name,
               background_image: `https://picsum.photos/seed/${encodeURIComponent(name)}/640/480`,
+              notInRawg: false,
             })),
           )
           return
@@ -218,9 +218,16 @@ function App() {
               name: match?.name || name,
               background_image: match?.background_image,
               originalName: name,
+              notInRawg: !match,
             }
           }),
         )
+
+        // Log missing games to developer console
+        const missing = results.filter(g => g.notInRawg).map(g => g.originalName)
+        if (missing.length > 0) {
+          console.warn("⚠️ Los siguientes juegos no se encontraron en la API de RAWG (usando datos locales):", missing)
+        }
 
         setGames(results)
       } catch (loadError) {
@@ -351,8 +358,6 @@ function App() {
           onPrevious={() => updatePage(page - 1)}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          showFilters={showFilters}
-          onToggleFilters={() => setShowFilters((v) => !v)}
           sortOrder={sortOrder}
           onSortChange={setSortOrder}
         />
@@ -372,8 +377,6 @@ function CatalogPage({
   totalPages,
   searchQuery,
   onSearchChange,
-  showFilters,
-  onToggleFilters,
   sortOrder,
   onSortChange,
 }) {
@@ -385,8 +388,8 @@ function CatalogPage({
         </h1>
       </section>
 
-      {/* Search bar + Filters toggle */}
-      <section className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start">
+      {/* Search bar + Filters in the same row */}
+      <section className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
         {/* Search input */}
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fuchsia-300/60" />
@@ -396,7 +399,7 @@ function CatalogPage({
             placeholder="Buscar juegos..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="h-11 w-full rounded-md border border-fuchsia-200/15 bg-[#13071f] pl-10 pr-10 text-sm font-medium text-white placeholder-purple-100/40 shadow-lg shadow-black/20 outline-none transition focus:border-fuchsia-400/60 focus:ring-1 focus:ring-fuchsia-400/40"
+            className="h-11 w-full rounded-md border border-fuchsia-200/15 bg-[#13071f] pl-10 pr-10 text-base sm:text-sm font-medium text-white placeholder-purple-100/40 shadow-lg shadow-black/20 outline-none transition focus:border-fuchsia-400/60 focus:ring-1 focus:ring-fuchsia-400/40"
           />
           {searchQuery && (
             <button
@@ -408,39 +411,24 @@ function CatalogPage({
             </button>
           )}
         </div>
+
+        {/* Filters section (dropdown sort next to search) */}
+        <div className="flex items-center gap-2">
+          <label htmlFor="sort-order" className="sr-only">
+            Ordenar por
+          </label>
+          <select
+            id="sort-order"
+            value={sortOrder}
+            onChange={(e) => onSortChange(e.target.value)}
+            className="h-11 w-full sm:w-auto rounded-md border border-fuchsia-200/15 bg-[#13071f] px-4 text-base sm:text-sm font-bold text-purple-100 outline-none transition focus:border-fuchsia-400/60 hover:border-fuchsia-300/40 focus:ring-1 focus:ring-fuchsia-400/40"
+          >
+            <option value="default">Por defecto</option>
+            <option value="az">Ordenar: A – Z</option>
+            <option value="za">Ordenar: Z – A</option>
+          </select>
+        </div>
       </section>
-
-      {/* Collapsible filters panel */}
-      {showFilters && (
-        <section className="mb-5 rounded-md border border-fuchsia-200/10 bg-fuchsia-300/[0.04] p-4 shadow-lg shadow-black/10">
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor="sort-order"
-                className="text-xs font-bold uppercase tracking-wider text-fuchsia-300/70"
-              >
-                Ordenar por
-              </label>
-              <select
-                id="sort-order"
-                value={sortOrder}
-                onChange={(e) => onSortChange(e.target.value)}
-                className="h-9 rounded-md border border-fuchsia-200/15 bg-[#13071f] px-3 text-sm font-medium text-white outline-none transition focus:border-fuchsia-400/60"
-              >
-                <option value="default">Por defecto</option>
-                <option value="az">A – Z</option>
-                <option value="za">Z – A</option>
-              </select>
-            </div>
-
-            {searchQuery && (
-              <p className="ml-auto text-sm font-semibold text-purple-100/60">
-                {games.length} resultado{games.length !== 1 ? 's' : ''}
-              </p>
-            )}
-          </div>
-        </section>
-      )}
 
       <Pagination page={page} totalPages={totalPages} onNext={onNext} onPrevious={onPrevious} />
 
@@ -509,7 +497,12 @@ function Pagination({ onNext, onPrevious, page, totalPages }) {
 
 function GameCard({ game, onAdd }) {
   return (
-    <article className="overflow-hidden rounded-md border border-fuchsia-200/10 bg-[#13071f] shadow-2xl shadow-black/30 transition hover:-translate-y-0.5 hover:border-fuchsia-300/35 hover:shadow-fuchsia-950/40">
+    <article className="relative overflow-hidden rounded-md border border-fuchsia-200/10 bg-[#13071f] shadow-2xl shadow-black/30 transition hover:-translate-y-0.5 hover:border-fuchsia-300/35 hover:shadow-fuchsia-950/40">
+      {game.notInRawg && (
+        <span className="absolute left-2 top-2 rounded bg-black/75 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-300 border border-amber-300/30 backdrop-blur-sm z-10 select-none">
+          Nombre Local
+        </span>
+      )}
       <img
         src={gameImage(game)}
         alt={game.name}

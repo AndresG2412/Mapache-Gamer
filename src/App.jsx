@@ -99,30 +99,33 @@ function App() {
   const [cart, setCart] = useState(() => readStorage(CART_STORAGE_KEY, []))
   const [gameNames, setGameNames] = useState([])
   const [games, setGames] = useState([])
-  const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortOrder, setSortOrder] = useState('default')
 
-  const filteredGames = useMemo(() => {
-    let result = games
+  const filteredGameNames = useMemo(() => {
+    let result = gameNames
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
-      result = result.filter((game) => game.name.toLowerCase().includes(query))
+      result = result.filter((name) => name.toLowerCase().includes(query))
     }
 
     if (sortOrder === 'az') {
-      result = [...result].sort((a, b) => a.name.localeCompare(b.name))
+      result = [...result].sort((a, b) => a.localeCompare(b))
     } else if (sortOrder === 'za') {
-      result = [...result].sort((a, b) => b.name.localeCompare(a.name))
+      result = [...result].sort((a, b) => b.localeCompare(a))
     }
 
     return result
-  }, [games, searchQuery, sortOrder])
+  }, [gameNames, searchQuery, sortOrder])
 
-  const page = preferences.page || 1
+  const totalPages = useMemo(() => {
+    return Math.max(1, Math.ceil(filteredGameNames.length / PAGE_SIZE))
+  }, [filteredGameNames])
+
+  const page = Math.min(Math.max(preferences.page || 1, 1), totalPages)
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0)
 
   useEffect(() => {
@@ -136,8 +139,12 @@ function App() {
   }, [cart])
 
   useEffect(() => {
-    window.localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(preferences))
-  }, [preferences])
+    // Keep preferences in sync, clamp page to maximum allowed pages
+    window.localStorage.setItem(
+      PREFERENCES_STORAGE_KEY,
+      JSON.stringify({ ...preferences, page }),
+    )
+  }, [preferences, page])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -150,18 +157,11 @@ function App() {
         const names = parseGameList(await response.text())
         if (!names.length) throw new Error('juegos.txt esta vacio.')
 
-        const pages = Math.max(1, Math.ceil(names.length / PAGE_SIZE))
         setGameNames(names)
-        setTotalPages(pages)
-        setPreferences((current) => ({
-          ...current,
-          page: Math.min(Math.max(current.page || 1, 1), pages),
-        }))
       } catch (loadError) {
         if (loadError.name !== 'AbortError') {
           setError('No se pudo cargar juegos.txt, asi que se muestra un catalogo demo.')
           setGameNames(DEMO_GAMES.map((game) => game.name))
-          setTotalPages(1)
         }
       }
     }
@@ -171,14 +171,17 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (!gameNames.length) return
+    if (!filteredGameNames.length) {
+      setGames([])
+      return
+    }
 
     const controller = new AbortController()
     const apiKey = import.meta.env.VITE_RAWG_API_KEY
 
     async function loadGames() {
       const start = (page - 1) * PAGE_SIZE
-      const pageNames = gameNames.slice(start, start + PAGE_SIZE)
+      const pageNames = filteredGameNames.slice(start, start + PAGE_SIZE)
 
       setLoading(true)
       setError('')
@@ -241,7 +244,7 @@ function App() {
 
     loadGames()
     return () => controller.abort()
-  }, [gameNames, page])
+  }, [filteredGameNames, page])
 
   const navigate = (path) => {
     window.history.pushState({}, '', path)
@@ -255,6 +258,22 @@ function App() {
       page: Math.min(Math.max(nextPage, 1), totalPages),
     }))
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleSearchChange = (query) => {
+    setSearchQuery(query)
+    setPreferences((current) => ({
+      ...current,
+      page: 1,
+    }))
+  }
+
+  const handleSortChange = (sort) => {
+    setSortOrder(sort)
+    setPreferences((current) => ({
+      ...current,
+      page: 1,
+    }))
   }
 
   const addToCart = (game) => {
@@ -349,7 +368,7 @@ function App() {
       ) : (
         <CatalogPage
           error={error}
-          games={filteredGames}
+          games={games}
           loading={loading}
           page={page}
           totalPages={totalPages}
@@ -357,9 +376,9 @@ function App() {
           onNext={() => updatePage(page + 1)}
           onPrevious={() => updatePage(page - 1)}
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={handleSearchChange}
           sortOrder={sortOrder}
-          onSortChange={setSortOrder}
+          onSortChange={handleSortChange}
         />
       )}
     </div>

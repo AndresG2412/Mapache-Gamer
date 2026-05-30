@@ -91,6 +91,8 @@ const gameImage = (game) =>
   game.background_image ||
   'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=900&q=80'
 
+const rawgCache = new Map()
+
 function App() {
   const [route, setRoute] = useState(() => window.location.pathname)
   const [preferences, setPreferences] = useState(() =>
@@ -102,24 +104,26 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortOrder, setSortOrder] = useState('default')
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+      setPreferences((current) => ({ ...current, page: 1 }))
+    }, 400)
+    return () => clearTimeout(handler)
+  }, [searchQuery])
 
   const filteredGameNames = useMemo(() => {
     let result = gameNames
 
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
+    if (debouncedSearchQuery.trim()) {
+      const query = debouncedSearchQuery.toLowerCase()
       result = result.filter((name) => name.toLowerCase().includes(query))
     }
 
-    if (sortOrder === 'az') {
-      result = [...result].sort((a, b) => a.localeCompare(b))
-    } else if (sortOrder === 'za') {
-      result = [...result].sort((a, b) => b.localeCompare(a))
-    }
-
     return result
-  }, [gameNames, searchQuery, sortOrder])
+  }, [gameNames, debouncedSearchQuery])
 
   const totalPages = useMemo(() => {
     return Math.max(1, Math.ceil(filteredGameNames.length / PAGE_SIZE))
@@ -202,6 +206,14 @@ function App() {
 
         const results = await Promise.all(
           pageNames.map(async (name, index) => {
+            if (rawgCache.has(name)) {
+              const cached = rawgCache.get(name)
+              return {
+                ...cached,
+                id: cached.id || `list-${page}-${index}`,
+              }
+            }
+
             const params = new URLSearchParams({
               key: apiKey,
               page_size: '1',
@@ -216,13 +228,16 @@ function App() {
             const data = await response.json()
             const match = data.results?.[0]
 
-            return {
+            const result = {
               id: match?.id ? `rawg-${match.id}` : `list-${page}-${index}`,
               name: match?.name || name,
               background_image: match?.background_image,
               originalName: name,
               notInRawg: !match,
             }
+            
+            rawgCache.set(name, result)
+            return result
           }),
         )
 
@@ -262,18 +277,6 @@ function App() {
 
   const handleSearchChange = (query) => {
     setSearchQuery(query)
-    setPreferences((current) => ({
-      ...current,
-      page: 1,
-    }))
-  }
-
-  const handleSortChange = (sort) => {
-    setSortOrder(sort)
-    setPreferences((current) => ({
-      ...current,
-      page: 1,
-    }))
   }
 
   const addToCart = (game) => {
@@ -377,8 +380,6 @@ function App() {
           onPrevious={() => updatePage(page - 1)}
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
-          sortOrder={sortOrder}
-          onSortChange={handleSortChange}
         />
       )}
     </div>
@@ -396,8 +397,6 @@ function CatalogPage({
   totalPages,
   searchQuery,
   onSearchChange,
-  sortOrder,
-  onSortChange,
 }) {
   return (
     <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:py-8">
@@ -407,7 +406,7 @@ function CatalogPage({
         </h1>
       </section>
 
-      {/* Search bar + Filters in the same row */}
+      {/* Search bar */}
       <section className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
         {/* Search input */}
         <div className="relative flex-1">
@@ -429,23 +428,6 @@ function CatalogPage({
               <X className="h-4 w-4" />
             </button>
           )}
-        </div>
-
-        {/* Filters section (dropdown sort next to search) */}
-        <div className="flex items-center gap-2">
-          <label htmlFor="sort-order" className="sr-only">
-            Ordenar por
-          </label>
-          <select
-            id="sort-order"
-            value={sortOrder}
-            onChange={(e) => onSortChange(e.target.value)}
-            className="h-11 w-full sm:w-auto rounded-md border border-fuchsia-200/15 bg-[#13071f] px-4 text-base sm:text-sm font-bold text-purple-100 outline-none transition focus:border-fuchsia-400/60 hover:border-fuchsia-300/40 focus:ring-1 focus:ring-fuchsia-400/40"
-          >
-            <option value="default">Por defecto</option>
-            <option value="az">Ordenar: A – Z</option>
-            <option value="za">Ordenar: Z – A</option>
-          </select>
         </div>
       </section>
 

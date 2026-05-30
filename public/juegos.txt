@@ -1,4 +1,4 @@
-Uncharted: Legacy of Thieves Collection (Carpeta "Uncharted")
+Uncharted: Legacy of Thieves Collection
 Unravel Two
 Vampire Survivors
 Vampyr
@@ -22,9 +22,9 @@ RIDE 5
 RoboCop: Rogue City
 Russian Village Simulator
 Sackboy: A Big Adventure
-Saints Row: The Heist and the Hazardous (Recolección o título relacionado con Saints Row)
+Saints Row: The Heist and the Hazardous
 Sekiro: Shadows Die Twice
-Sifu (Carpeta "SIFU Arenas")
+Sifu
 SIGNALIS
 Song of Nunu: A League of Legends Story
 Star Trek Infinite
@@ -37,8 +37,8 @@ Streamer Life Simulator
 Stronghold: Definitive Edition
 Subnautica: Below Zero
 Sword Art Online: Last Recollection
-System Shock (Remake)
-Tales of Arise (incluye expansión Beyond the Dawn)
+System Shock Remake
+Tales of Arise
 Terminator Salvation
 Terraria
 The Mageseeker: A League of Legends Story
@@ -47,7 +47,7 @@ The Last Case of Benedict Fox
 The Last Faith
 The Lord of the Rings: Gollum
 The Lord of the Rings: Return to Moria
-The Sims 4 (incluye expansión Cottage Living)
+The Sims 4 
 The Talos Principle 2
 Tom Clancy's Ghost Recon Wildlands
 Tony Hawk's Pro Skater 1 + 2
@@ -55,28 +55,30 @@ Total War: Three Kingdoms
 Total War: WARHAMMER II
 Halo Infinite
 Hellblade: Senua's Sacrifice
-Hello Neighbor (y su secuela Hello Neighbor 2)
-High on Life (incluye DLC High on Knife)
+Hello Neighbor
+Hello Neighbor 2
+High on Life
 Hitman 3
-Hogwarts Legacy (Deluxe Edition)
+Hogwarts Legacy Deluxe Edition
 Hollow Knight
 Horizon Zero Dawn
-Horizon Forbidden West (Complete Edition)
+Horizon Forbidden West
 Hot Wheels Unleashed 2: Turbocharged
-Hotline Miami (y Hotline Miami 2: Wrong Number)
 House Flipper
-Internet Cafe Simulator (1 y 2)
+Internet Cafe Simulator
+Internet Cafe Simulator 2
 It Takes Two
-Jump King (incluye DLC Ghost of the Babe)
+Jump King
 Kena: Bridge of Spirits
-Kingdom Hearts III (incluye Re:Mind)
+Kingdom Hearts III
 Kona II: Brume
-Left 4 Dead (Bundle con 1 y 2)
+Left 4 Dead
+Left 4 Dead 2
 LEGO Batman 3: Beyond Gotham
 LEGO The Hobbit
-Little Nightmares II (Enhanced Edition)
-Mafia II (Definitive Edition)
-Mafia III (Definitive Edition)
+Little Nightmares II Enhanced Edition
+Mafia II Definitive Edition
+Mafia III Definitive Edition
 Maneater
 Marvel's Avengers
 Marvel's Spider-Man: Miles Morales
@@ -116,22 +118,29 @@ Battlefield V
 Blasphemous
 BlazBlue Cross Tag Battle (Special Edition)
 Bleak Faith Forsaken
-Bully (Scholarship Edition)
-Call of Duty (Varios: WWII Shadow War, 2, Black Ops II, Black Ops III Zombies Chronicles, Modern Warfare 2 Campaign Remastered)
+Bully Scholarship Edition
+Call of Duty WWII Shadow War
+Call of Duty 2
+Call of Duty Black Ops II
+Call of Duty Black Ops III
+Call of Duty Modern Warfare 2 Remastered
 Celeste
 Cities: Skylines II
 Convergence: A League of Legends Story
-Control (Ultimate Edition)
+Control Ultimate Edition
 Dakar 18
 Dark Envoy
-Dark Souls (II: Scholar of the First Sin, III: The Ringed City, Remastered)
+Dark Souls II: Scholar of the First Sin
+Dark Souls III: The Ringed City
+Dark Souls Remastered
 Days Gone
 Dead Island 2
 Dead Rising 3
 Death Stranding (Director's Cut)
-Devil May Cry (5, HD Collection)
+Devil May Cry 5
+Devil May Cry HD Collection
 Diablo II: Resurrected
-Dishonored (Complete Collection)
+Dishonored Complete Collection
 
 Scarface The World is Yours
 Senua's Saga Hellblade II
@@ -222,7 +231,7 @@ Crash Bandicoot 4: It's About Time
 Crash Bandicoot N. Sane Trilogy
 Cuphead
 Cyberpunk 2077
-Dead Cells (v1.23.0)
+Dead Cells
 Detroit: Become Human
 Diablo II: Resurrected Infernal Edition
 Disney Epic Mickey: Rebrushed
